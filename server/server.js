@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
+const morgan = require('morgan');
 
 // Import routes
 const postRoutes = require('./routes/posts');
@@ -29,10 +30,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Log requests in development mode
 if (process.env.NODE_ENV === 'development') {
-  app.use((req, res, next) => {
-    console.log(`${req.method} ${req.url}`);
-    next();
-  });
+  app.use(morgan('dev'));
 }
 
 // API routes
