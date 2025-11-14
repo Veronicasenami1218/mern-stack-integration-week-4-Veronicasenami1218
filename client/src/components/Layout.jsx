@@ -5,28 +5,28 @@ import { useAuth } from '../context/AuthContext'
 export default function Layout() {
   const { user, logout } = useAuth()
   return (
-    <div style={{ fontFamily: 'system-ui, sans-serif', maxWidth: 980, margin: '0 auto', padding: 16 }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <nav style={{ display: 'flex', gap: 12 }}>
+    <div className="app">
+      <aside className="sidebar">
+        <h1>
+          <span role="img" aria-label="cap">🎓</span>
+          Student Tracker
+        </h1>
+        <nav>
           <Link to="/">Dashboard</Link>
           <Link to="/progress">Progress</Link>
           <Link to="/progress/new">Add Progress</Link>
         </nav>
-        <div>
-          {user ? (
-            <>
-              <span style={{ marginRight: 12 }}>Hi, {user.name}</span>
-              <button onClick={logout}>Logout</button>
-            </>
-          ) : (
-            <span style={{ display: 'inline-flex', gap: 12 }}>
-              <Link to="/login">Login</Link>
-              <Link to="/signup">Signup</Link>
-            </span>
-          )}
+      </aside>
+      <main className="content">
+        <div className="header">
+          <div/>
+          <div className="user">
+            <span className="badge">{user?.name || 'Guest'}</span>
+            {user && <button className="btn secondary" onClick={logout}>Logout</button>}
+          </div>
         </div>
-      </header>
-      <Outlet />
+        <Outlet />
+      </main>
     </div>
   )
 }
