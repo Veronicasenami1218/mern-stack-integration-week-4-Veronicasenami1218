@@ -13,9 +13,36 @@ export function AuthProvider({ children }) {
     return () => window.removeEventListener('storage', handler)
   }, [])
 
+  const getRoleMap = () => {
+    try {
+      return JSON.parse(localStorage.getItem('roleMap') || '{}')
+    } catch {
+      return {}
+    }
+  }
+
+  const saveRoleForEmail = (email, role) => {
+    const map = getRoleMap()
+    map[email] = role
+    localStorage.setItem('roleMap', JSON.stringify(map))
+  }
+
+  const attachRole = (u) => {
+    if (!u) return u
+    const map = getRoleMap()
+    const role = map[u.email]
+    return role ? { ...u, role } : u
+  }
+
+  // Ensure role is attached on initial load
+  useEffect(() => {
+    const current = authService.getCurrentUser()
+    if (current) setUser(attachRole(current))
+  }, [])
+
   const login = async (email, password) => {
     const res = await authService.login({ email, password })
-    setUser(res.user)
+    setUser(attachRole(res.user))
     return res
   }
 
@@ -24,7 +51,13 @@ export function AuthProvider({ children }) {
     setUser(null)
   }
 
-  const value = useMemo(() => ({ user, login, logout }), [user])
+  const setRole = (role) => {
+    if (!user?.email) return
+    saveRoleForEmail(user.email, role)
+    setUser((prev) => (prev ? { ...prev, role } : prev))
+  }
+
+  const value = useMemo(() => ({ user, login, logout, setRole, attachRole, saveRoleForEmail }), [user])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
