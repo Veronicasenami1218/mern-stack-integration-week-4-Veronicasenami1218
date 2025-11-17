@@ -7,10 +7,11 @@ export default function Signup() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [role, setRole] = useState('student')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login, saveRoleForEmail, setRole: setCtxRole } = useAuth()
 
   const onSubmit = async (e) => {
     e.preventDefault()
@@ -19,6 +20,9 @@ export default function Signup() {
     try {
       await authService.register({ name, email, password })
       await login(email, password)
+      // persist role locally for RBAC (mock until backend integration)
+      saveRoleForEmail(email, role)
+      setCtxRole(role)
       navigate('/', { replace: true })
     } catch (err) {
       setError(err?.response?.data?.error || 'Signup failed')
@@ -42,6 +46,14 @@ export default function Signup() {
         <div style={{ marginBottom: 12 }}>
           <label>Password</label>
           <input type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} required style={{ width: '100%' }} />
+        </div>
+        <div style={{ marginBottom: 12 }}>
+          <label>Role</label>
+          <select className="input" value={role} onChange={(e) => setRole(e.target.value)}>
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+            <option value="admin">Admin</option>
+          </select>
         </div>
         {error && <p style={{ color: 'red' }}>{error}</p>}
         <button disabled={loading} type="submit">{loading ? 'Creating...' : 'Create account'}</button>
